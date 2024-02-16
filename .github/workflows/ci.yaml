@@ -1,0 +1,20 @@
+name: Build CH5
+
+on:
+  push:
+    branches:
+      - '**'
+jobs:
+  get_version:
+    uses: ./.github/workflows/get-version.yaml
+    secrets: inherit
+  build_and_push:
+    uses: ./.github/workflows/build-and-push.yaml
+    secrets: inherit
+    needs: get_version
+    with:
+      newVersion: ${{ needs.get_version.outputs.newVersion }}
+      version: ${{ needs.get_version.outputs.version }}
+      hash: ${{ needs.get_version.outputs.hash }}
+      tag: ${{ needs.get_version.outputs.tag }}
+      channel: ${{ needs.get_version.outputs.channel }}

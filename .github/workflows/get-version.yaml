@@ -1,0 +1,80 @@
+name: Get Version
+
+on:
+  workflow_call:
+    outputs:
+      version:
+        description: 'The version of the workflow'
+        value: ${{ jobs.get_version.outputs.version }}
+      tag:
+        description: 'The tag of the workflow'
+        value: ${{ jobs.get_version.outputs.tag }}
+      newVersion:
+        description: 'Was a new version generated?'
+        value: ${{ jobs.get_version.outputs.newVersion }}
+      type:
+        description: 'The type of version bump'
+        value: ${{ jobs.get_version.outputs.type }}
+      channel:
+        description: 'The channel of the workflow'
+        value: ${{ jobs.get_version.outputs.channel }}
+      hash:
+        description: 'The short SHA of the workflow'
+        value: ${{ jobs.get_version.outputs.hash }}
+jobs:
+  get_version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+      tag: ${{ steps.get_version.outputs.tag }}
+      hash: ${{ steps.get_version.outputs.hash }}
+      channel: ${{ steps.get_version.outputs.channel }}
+      newVersion: ${{ steps.get_version.outputs.newVersion }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3 # v3
+        with:
+          cache: npm
+          node-version: lts/*
+          registry-url: https://npm.pkg.github.com
+          scope: '@pepperdash-products'
+      - name: Get version number
+        id: get_version
+        run: |
+          npx --package=@pepperdash-products/semantic-release \
+          --package=@semantic-release/commit-analyzer \
+          --package=@semantic-release/release-notes-generator \
+          --package=@semantic-release/changelog \
+          --package=@semantic-release/exec \
+          --package=conventional-changelog-conventionalcommits@5 \
+          -- semantic-release
+          echo "hash=$(git rev-parse --short=7 HEAD)" >> $GITHUB_OUTPUT
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_REGISTRY_TOKEN }}
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Print summary if no new version
+        if: steps.get_version.outputs.newVersion != 'true'
+        run: |
+          branch=${GITHUB_REF#refs/heads/}
+          echo "# UI V2 Summary" >> $GITHUB_STEP_SUMMARY
+          echo "No new version generated" >> $GITHUB_STEP_SUMMARY
+          echo "To upload the build from this run, use the following values in the deploy-manual manual action:" >> $GITHUB_STEP_SUMMARY
+          echo "version: ${branch//\//-}" >> $GITHUB_STEP_SUMMARY
+          echo "hash: ${{ steps.get_version.outputs.hash }}" >> $GITHUB_STEP_SUMMARY
+      - name: Upload release notes
+        if: steps.get_version.outputs.newVersion == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: change-log
+          path: CHANGELOG.md
+      - name: Print results
+        if: steps.get_version.outputs.newVersion == 'true'
+        run: |
+          echo "# UI V2 Summary" >> $GITHUB_STEP_SUMMARY
+
+          echo "Version: ${{ steps.get_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "Tag: ${{ steps.get_version.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "New Version: ${{ steps.get_version.outputs.newVersion }}" >> $GITHUB_STEP_SUMMARY
+          echo "Channel: ${{ steps.get_version.outputs.channel }}" >> $GITHUB_STEP_SUMMARY
+          echo "Type: ${{ steps.get_version.outputs.type }}" >> $GITHUB_STEP_SUMMARY
+          echo "Short SHA: ${{ steps.get_version.outputs.hash }}" >> $GITHUB_STEP_SUMMARY
