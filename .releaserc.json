@@ -1,4 +1,32 @@
 {
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "releaseRules": [
+          { "scope": "force-patch", "release": "patch" },
+          { "scope": "no-release", "release": false }
+        ],
+        "presetConfig": {}
+      }
+    ],
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md"
+      }
+    ],
+    [
+      "@semantic-release/exec",
+      {
+        "verifyReleaseCmd": "echo \"newVersion=true\" >> $GITHUB_OUTPUT",
+        "publishCmd": "echo \"version=${nextRelease.version}\" >> $GITHUB_OUTPUT && echo \"tag=${nextRelease.gitTag}\" >> $GITHUB_OUTPUT && echo \"type=${nextRelease.type}\" >> $GITHUB_OUTPUT && echo \"channel=${nextRelease.channel}\" >> $GITHUB_OUTPUT"
+      }
+    ]
+  ],
+  "pkgRoot": "dist",
   "branches": [
     "main",
     {
@@ -8,7 +36,8 @@
     },
     {
       "name": "development",
-      "prerelease": "beta"
+      "prerelease": "beta",
+      "channel": "beta"
     }
   ]
 }
