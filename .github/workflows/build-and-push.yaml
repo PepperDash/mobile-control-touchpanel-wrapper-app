@@ -1,0 +1,65 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      newVersion:
+        description: 'new version?'
+        required: true
+        type: string
+      version:
+        description: 'The version of the file to build and push'
+        required: true
+        type: string
+      hash:
+        description: 'The commit hash'
+        required: true
+        type: string
+      tag:
+        description: 'The tag of the image to build and push'
+        required: true
+        type: string
+      channel:
+        description: 'The channel of the image to build and push'
+        required: true
+        type: string
+jobs:
+  # Builds for all channels except production
+  Build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    if: inputs.channel == 'rc' || inputs.channel == 'dev' || ( inputs.channel == '' && inputs.newVersion != 'true')
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: Use Node 20
+        uses: actions/setup-node@v3
+        with:
+          cache: npm
+          node-version: '20.x'
+          registry-url: 'https://npm.pkg.github.com'
+      - name: Install Packages
+        run: |
+          npm ci
+      - name: Build App for dev. Allow warnings
+        run: |
+          npm run build
+          npx ch5-cli archive -p Mobile-Control-Touchpanel-Wrapper-App-${{ inputs.version }} -d dist -o build
+      - name: Get release notes
+        if: inputs.newVersion == 'true'
+        uses: actions/download-artifact@v3
+        with:
+          name: change-log
+      - name: Create Release
+        id: create_release
+        if: inputs.newVersion == 'true'
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: './build/**'
+          bodyFile: ./CHANGELOG.md
+          prerelease: ${{ inputs.channel == 'rc' || inputs.channel == 'beta' }}
+          tag: ${{ inputs.tag }}
+          commit: ${{ github.sha }}
+          allowUpdates: true

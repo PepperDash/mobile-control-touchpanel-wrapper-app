@@ -1,0 +1,286 @@
+{
+  "template": {
+    "info": {
+      "systemType": "huddle",
+      "requiredControlSofwareVersion": "",
+      "comment": "",
+      "lastUid": 10,
+      "processorType": "dinAp3",
+      "lastModifiedDate": "2020-11-11T22:46:23.768Z"
+    },
+    "devices": [
+      {
+        "type": "dinAp3",
+        "name": "DIN-AP3",
+        "group": "processor",
+        "supportedConfigModes": ["compliance", "essentials"],
+        "supportedSystemTypes": ["hudType", "presType", "vtcType", "custom"],
+        "supportsCompliance": true,
+        "properties": {
+          "numberOfComPorts": 2,
+          "numberOfDIOPorts": 8,
+          "numberOfIrPorts": 4,
+          "numberOfRelays": 4
+        },
+        "key": "processor",
+        "uid": 0
+      },
+      {
+        "key": "wePresent-1",
+        "uid": 1,
+        "type": "genericSource",
+        "name": "wePresent",
+        "group": "genericSource",
+        "properties": {
+          "isDefault": true
+        }
+      },
+      {
+        "key": "inRoomPc-1",
+        "uid": 2,
+        "type": "inRoomPc",
+        "name": "Room PC",
+        "group": "pc",
+        "properties": {
+          "hasAudio": true,
+          "hasControls": false
+        }
+      },
+      {
+        "name": "Direct TV",
+        "properties": {
+          "hasDvr": true,
+          "hasNumeric": true,
+          "control": {
+            "controlPortDevKey": "processor",
+            "method": "ir",
+            "controlPortNumber": 1,
+            "irFile": "Comcast X1.ir"
+          },
+          "hasDpad": true,
+          "hasControls": true,
+          "hasPresets": true,
+          "hasAudio": true,
+          "presetsList": "TV Presets Test.json"
+        },
+        "type": "settopbox",
+        "group": "setTopBox",
+        "uid": 9,
+        "key": "directv-1"
+      },
+      {
+        "key": "ciscoSparkPlusCodec-1",
+        "uid": 3,
+        "name": "Mock Video Codec",
+        "type": "mockvc",
+        "group": "videoCodec",
+        "properties": {
+          "favorites": []
+        }
+      },
+      {
+        "key": "display-1",
+        "uid": 4,
+        "name": "Mock Display",
+        "type": "mockdisplay",
+        "group": "display",
+        "properties": {
+          "id": "01",
+          "control": {
+            "method": "com",
+            "comParams": {
+              "baudRate": 9600,
+              "dataBits": 8,
+              "stopBits": 1,
+              "parity": "None",
+              "protocol": "RS232",
+              "hardwareHandshake": "None",
+              "softwareHandshake": "None"
+            },
+            "controlPortDevKey": "processor",
+            "controlPortNumber": 1
+          }
+        }
+      },
+      {
+        "key": "display-2",
+        "uid": 4,
+        "name": "Mock Display",
+        "type": "mockdisplay",
+        "group": "display",
+        "properties": {
+          "id": "01",
+          "control": {
+            "method": "com",
+            "comParams": {
+              "baudRate": 9600,
+              "dataBits": 8,
+              "stopBits": 1,
+              "parity": "None",
+              "protocol": "RS232",
+              "hardwareHandshake": "None",
+              "softwareHandshake": "None"
+            },
+            "controlPortDevKey": "processor",
+            "controlPortNumber": 1
+          }
+        }
+      },
+      {
+        "name": "App Server",
+        "key": "appServer",
+        "uid": 9,
+        "type": "appServer",
+        "group": "appServer",
+        "properties": {
+          "serverUrl": "https://192.168.1.216/mc/api",
+          "enableApiServer": false,
+          "directServer": {
+            "enableDirectServer": true,
+            "port": 50002
+          }
+        }
+      },
+      {
+        "name": "Touchpanel Wrapper",
+        "key": "tp-1",
+        "uid": 10,
+        "type": "mcxpanel",
+        "group": "touchpanel",
+        "properties": {
+          "control": {
+            "method": "ipid",
+            "ipId": "3"
+          },
+          "ipId": "3",
+          "defaultRoomKey": "room1"
+        }
+      }
+    ],
+    "rooms": [
+      {
+        "key": "room1",
+        "name": "Test System 4",
+        "type": "rockstar",
+        "properties": {
+          "sourceListKey": "default",
+          "roomVolumeDeviceKey": "display-1",
+          "roomAudioSinkKey": "display-1",
+          "leftDisplayKey": "display-1",
+          "rightDisplayKey": "display-2"
+        }
+      }
+    ],
+    "sourceLists": {
+      "default": {
+        "roomOff": {
+          "sourceKey": "$off",
+          "type": "off",
+          "routeList": [
+            {
+              "sourceKey": "$off",
+              "destinationKey": "$defaultAll",
+              "type": "audioVideo"
+            }
+          ]
+        },
+        "codecOsd": {
+          "routeList": [
+            {
+              "destinationKey": "$defaultAll",
+              "type": "audioVideo",
+              "sourceKey": "ciscoSparkPlusCodec-1[osd]"
+            }
+          ],
+          "type": "route",
+          "name": "None",
+          "sourceKey": "",
+          "order": 1,
+          "includeInSourceList": true
+        },
+        "source-1": {
+          "sourceKey": "wePresent-1",
+          "name:": "wePresent",
+          "order": 5,
+          "type": "route",
+          "icon": "",
+          "altIcon": "Blank",
+          "includeInSourceList": true,
+          "volumeControlKey": "$defaultAudio",
+          "routeList": [
+            {
+              "sourceKey": "wePresent-1",
+              "destinationKey": "$defaultAll",
+              "type": "audioVideo"
+            }
+          ]
+        },
+        "source-2": {
+          "sourceKey": "inRoomPc-1",
+          "order": 6,
+          "type": "route",
+          "icon": "",
+          "altIcon": "Blank",
+          "includeInSourceList": true,
+          "volumeControlKey": "$defaultAudio",
+          "routeList": [
+            {
+              "sourceKey": "inRoomPc-1",
+              "destinationKey": "$defaultAll",
+              "type": "audioVideo"
+            }
+          ]
+        },
+        "source-3": {
+          "sourceKey": "directv-1",
+          "order": 6,
+          "type": "route",
+          "icon": "",
+          "altIcon": "Blank",
+          "includeInSourceList": true,
+          "volumeControlKey": "$defaultAudio",
+          "routeList": [
+            {
+              "sourceKey": "directv-1",
+              "destinationKey": "$defaultAll",
+              "type": "audioVideo"
+            }
+          ]
+        }
+      }
+    },
+    "tieLines": [
+      {
+        "sourceKey": "wePresent-1",
+        "sourcePort": "anyOut",
+        "destinationKey": "ciscoSparkPlusCodec-1",
+        "destinationPort": "HdmiIn2",
+        "type": "audioVideo"
+      },
+      {
+        "sourceKey": "inRoomPc-1",
+        "sourcePort": "anyVideoOut",
+        "destinationKey": "ciscoSparkPlusCodec-1",
+        "destinationPort": "HdmiIn3",
+        "type": "audioVideo"
+      },
+      {
+        "sourceKey": "ciscoSparkPlusCodec-1",
+        "sourcePort": "HdmiOut1",
+        "destinationKey": "display-1",
+        "destinationPort": "HdmiIn1",
+        "type": "audioVideo"
+      },
+      {
+        "sourceKey": "directv-1",
+        "sourcePort": "anyOut",
+        "destinationKey": "display-1",
+        "destinationPort": "HdmiIn2",
+        "type": "audioVideo"
+      }
+    ]
+  },
+  "system": {},
+  "system_url": "https://portal-dev.devcloud.pepperdash.com/systems/4/#/summary",
+  "template_url": "https://portal-dev.devcloud.pepperdash.com/templates/0d29fa2e-8874-49f7-9f97-6d197ce31d3e/#/summary"
+}
