@@ -30,7 +30,6 @@ jobs:
     permissions:
       id-token: write
       contents: write
-    if: inputs.channel == 'rc' || inputs.channel == 'dev' || ( inputs.channel == '' && inputs.newVersion != 'true')
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
@@ -43,7 +42,7 @@ jobs:
       - name: Install Packages
         run: |
           npm ci
-      - name: Build App for dev. Allow warnings
+      - name: Build App
         run: |
           npm run build
           npx ch5-cli archive -p Mobile-Control-Touchpanel-Wrapper-App-${{ inputs.version }} -d dist -o build
