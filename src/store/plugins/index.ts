@@ -31,7 +31,7 @@ export const applyReduxPlugins = (store: Store) => {
   setupWebXPanel(store, {
     config: {
       host: host ? host : undefined,
-      ipId: ipId ? ipId : undefined,
+      ipId: ipId ? ipId : '5',
       roomId: roomId ? roomId : undefined,
       port: port ? parseInt(port) : undefined,
       authToken: authToken ? authToken : undefined,
