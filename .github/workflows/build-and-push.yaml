@@ -32,9 +32,9 @@ jobs:
       contents: write
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Use Node 20
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           cache: npm
           node-version: '20.x'
@@ -48,7 +48,7 @@ jobs:
           npx ch5-cli archive -p Mobile-Control-Touchpanel-Wrapper-App-${{ inputs.version }} -d dist -o build
       - name: Get release notes
         if: inputs.newVersion == 'true'
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: change-log
       - name: Create Release

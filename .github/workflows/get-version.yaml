@@ -31,8 +31,8 @@ jobs:
       channel: ${{ steps.get_version.outputs.channel }}
       newVersion: ${{ steps.get_version.outputs.newVersion }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3 # v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4 # v3
         with:
           cache: npm
           node-version: lts/*
@@ -64,7 +64,7 @@ jobs:
           echo "hash: ${{ steps.get_version.outputs.hash }}" >> $GITHUB_STEP_SUMMARY
       - name: Upload release notes
         if: steps.get_version.outputs.newVersion == 'true'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: change-log
           path: CHANGELOG.md
