@@ -10,6 +10,9 @@ const {
   WebXPanelEvents,
   getVersion,
   getBuildDate,
+  enableDebugging,
+  setLogLevel,
+  LogLevel,
 } = getWebXPanel(!runsInContainerApp());
 
 export type WebXPanelConfigParams = typeof WebXPanelConfigParams;
@@ -40,6 +43,9 @@ export const setupWebXPanel = (
   if (!isActive) {
     return store;
   }
+
+  enableDebugging();
+  setLogLevel(LogLevel.DEBUG);
 
   window.CrComLib = CrComLib;
 
@@ -76,13 +82,9 @@ export const setupWebXPanel = (
     );
   });
 
-  WebXPanel.addEventListener(
-    WebXPanelEvents.DISCONNECT_CIP,
-    (event: unknown) => {
-      const { reason } = (event as any).detail;
-      console.log(`WebXpanel Disconnected from CIP. Reason: ${reason}`);
-    }
-  );
+  WebXPanel.addEventListener(WebXPanelEvents.DISCONNECT_CIP, (event: any) => {
+    console.log(`WebXpanel Disconnected from CIP. Reason: ${event}`);
+  });
 
   WebXPanel.addEventListener(WebXPanelEvents.LICENSE_WS, (event: any) => {
     console.log('WebXPanel License Info...');
