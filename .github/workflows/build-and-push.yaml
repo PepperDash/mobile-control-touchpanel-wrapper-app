@@ -58,7 +58,7 @@ jobs:
         with:
           artifacts: './build/**'
           bodyFile: ./CHANGELOG.md
-          prerelease: ${{ inputs.channel == 'rc' || inputs.channel == 'beta' }}
+          prerelease: ${{ inputs.channel != '' }}
           tag: ${{ inputs.tag }}
           commit: ${{ github.sha }}
           allowUpdates: true
