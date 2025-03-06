@@ -83,7 +83,9 @@ export const setupWebXPanel = (
   });
 
   WebXPanel.addEventListener(WebXPanelEvents.DISCONNECT_CIP, (event: any) => {
-    console.log(`WebXpanel Disconnected from CIP. Reason: ${event}`);
+    console.log(
+      `WebXpanel Disconnected from CIP. Reason: ${JSON.stringify(event, null, 2)}`
+    );
   });
 
   WebXPanel.addEventListener(WebXPanelEvents.LICENSE_WS, (event: any) => {
