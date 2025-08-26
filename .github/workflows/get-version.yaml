@@ -31,13 +31,35 @@ jobs:
       channel: ${{ steps.get_version.outputs.channel }}
       newVersion: ${{ steps.get_version.outputs.newVersion }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3 # v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4 # v3
         with:
           cache: npm
           node-version: lts/*
           registry-url: https://npm.pkg.github.com
           scope: '@pepperdash-products'
+      - name: Get branch name
+        id: get_branch
+        run: |
+          branch=${GITHUB_REF#refs/heads/}
+          echo "branch=$branch" >> $GITHUB_OUTPUT
+          echo "prerelease=${branch//\//-}" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_REF: ${{ github.ref }}
+      - name: Replace branch name in .releaserc.json
+        if: steps.get_branch.outputs.branch != 'main'
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: 'replace-me-feature-branch'
+          replace: '${{ steps.get_branch.outputs.branch }}'
+          include: '.releaserc.json'
+      - name: Replace prerelease name in .releaserc.json
+        if: steps.get_branch.outputs.branch != 'main'
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: 'replace-me-prerelease'
+          replace: '${{ steps.get_branch.outputs.prerelease }}'
+          include: '.releaserc.json'
       - name: Get version number
         id: get_version
         run: |
@@ -64,7 +86,7 @@ jobs:
           echo "hash: ${{ steps.get_version.outputs.hash }}" >> $GITHUB_STEP_SUMMARY
       - name: Upload release notes
         if: steps.get_version.outputs.newVersion == 'true'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: change-log
           path: CHANGELOG.md

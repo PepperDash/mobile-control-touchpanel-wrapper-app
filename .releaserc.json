@@ -30,14 +30,9 @@
   "branches": [
     "main",
     {
-      "name": "release",
-      "prerelease": "rc",
-      "channel": "rc"
-    },
-    {
-      "name": "development",
-      "prerelease": "beta",
-      "channel": "beta"
+      "name": "replace-me-feature-branch",
+      "prerelease": "replace-me-prerelease",
+      "channel": "replace-me-prerelease"
     }
   ]
 }
