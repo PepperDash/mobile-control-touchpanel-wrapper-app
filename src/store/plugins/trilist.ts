@@ -48,8 +48,14 @@ function setupTrilist(store: Store, options: IControlSystemActions) {
         let updatedUrl = currentUrl;
 
         // Remove existing '_t' parameter if it exists
-        updatedUrl = updatedUrl.replace(/[?&]_t=[^&]*(&|$)/g, (match, p1) => p1 === '&' ? '' : '');
-        // Remove any trailing '?' or '&' left after parameter removal
+        // Handle _t at the beginning: ?_t=value&... or ?_t=value (end)
+        updatedUrl = updatedUrl.replace(/\?_t=[^&]*(&|$)/g, (_, p1) => {
+          return p1 === '&' ? '?' : '';
+        });
+        // Handle _t in the middle/end: &_t=value&... or &_t=value (end)
+        updatedUrl = updatedUrl.replace(/&_t=[^&]*/g, '');
+
+        // Clean up any trailing '?' or '&'
         updatedUrl = updatedUrl.replace(/[?&]$/, '');
 
         // Add the new '_t' parameter
