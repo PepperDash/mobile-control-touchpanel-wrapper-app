@@ -1,5 +1,6 @@
 import { CrComLib } from '@pepperdash/ch5-crcomlib-lite';
 import { Store, UnknownAction } from '@reduxjs/toolkit';
+import { RootState } from '../store';
 
 export interface IControlSystemActions {
   actions: {
@@ -20,6 +21,51 @@ function setupTrilist(store: Store, options: IControlSystemActions) {
   CrComLib.subscribeState('s', 'Csig.Ip_Address_fb', (value: string) =>
     store.dispatch(options.actions.setPanelIpAddress(value))
   );
+
+  CrComLib.subscribeState('b', '1', (value: boolean) => {
+    //pulsed from control system. Triggering on falling edge
+    if (value) {
+      return;
+    }
+    // Get current mcAppUrl from store
+    const currentState = store.getState() as RootState;
+    const currentUrl = currentState.touchPanel.mcAppUrl;
+
+    if (currentUrl) {
+      // Generate a random value
+      const randomValue = Math.random().toString(36).substring(2, 15);
+
+      // Parse the URL to add/update the random query parameter
+      try {
+        const url = new URL(currentUrl);
+        url.searchParams.set('_t', randomValue);
+        const updatedUrl = url.toString();
+
+        // Update the store with the new URL
+        store.dispatch(options.actions.setMcAppUrl(updatedUrl));
+      } catch (error) {
+        // If URL parsing fails, handle the parameter manually
+        let updatedUrl = currentUrl;
+
+        // Remove existing '_t' parameter if it exists
+        // Handle _t at the beginning: ?_t=value&... or ?_t=value (end)
+        updatedUrl = updatedUrl.replace(/\?_t=[^&]*(&|$)/g, (_, p1) => {
+          return p1 === '&' ? '?' : '';
+        });
+        // Handle _t in the middle/end: &_t=value&... or &_t=value (end)
+        updatedUrl = updatedUrl.replace(/&_t=[^&]*/g, '');
+
+        // Clean up any trailing '?' or '&'
+        updatedUrl = updatedUrl.replace(/[?&]$/, '');
+
+        // Add the new '_t' parameter
+        const separator = updatedUrl.includes('?') ? '&' : '?';
+        updatedUrl = `${updatedUrl}${separator}_t=${randomValue}`;
+
+        store.dispatch(options.actions.setMcAppUrl(updatedUrl));
+      }
+    }
+  });
 
   CrComLib.subscribeState('s', '1', (value: string) =>
     store.dispatch(options.actions.setMcAppUrl(value))

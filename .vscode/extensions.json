@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "mhutchie.git-graph",
+    "esbenp.prettier-vscode",
+    "formulahendry.auto-rename-tag"
+  ]
+}
