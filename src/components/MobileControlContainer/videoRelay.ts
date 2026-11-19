@@ -83,6 +83,8 @@ export const startVideoRelay = (iframe: HTMLIFrameElement) => {
   // The running videos that are drawn underneath the page
   const seeThroughIds = new Set<number>();
   let restoreBackgrounds: (() => void)[] = [];
+  // Whether the app says it is drawn light or dark
+  let appColorScheme: 'light' | 'dark' | undefined;
 
   const updateBackgrounds = () => {
     if (seeThroughIds.size > 0 && restoreBackgrounds.length === 0) {
@@ -93,6 +95,19 @@ export const startVideoRelay = (iframe: HTMLIFrameElement) => {
         element = element.parentElement
       ) {
         restoreBackgrounds.push(makeTransparent(element));
+      }
+
+      // The browser gives an iframe a solid backdrop, whatever its background
+      // is set to, when the iframe element and the page inside it use
+      // different colour schemes. This page follows the panel's light/dark
+      // preference, so the iframe is switched to the app's scheme for as long
+      // as it has to be see-through.
+      if (appColorScheme) {
+        const previous = iframe.style.colorScheme;
+        iframe.style.colorScheme = appColorScheme;
+        restoreBackgrounds.push(() => {
+          iframe.style.colorScheme = previous;
+        });
       }
     } else if (seeThroughIds.size === 0) {
       restoreBackgrounds.forEach((restore) => restore());
@@ -167,6 +182,9 @@ export const startVideoRelay = (iframe: HTMLIFrameElement) => {
 
     if (data.type === RELAY_REQUEST && isVideoRequest(data.request)) {
       appOrigin = event.origin;
+      if (data.colorScheme === 'light' || data.colorScheme === 'dark') {
+        appColorScheme = data.colorScheme;
+      }
       forwardRequest(data.request);
     }
   };
